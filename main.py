@@ -1,11 +1,6 @@
-import json
+import requests
 
-json_text = '{"messages":[' \
-                '{"message":"This is the first message","timestamp":"2021-06-04 16:40:53"},' \
-                '{"message":"And this is a second message","timestamp":"2021-06-04 16:41:01"}' \
-            ']}'
+res = requests.get("https://playground.learnqa.ru/api/long_redirect")
 
-json_messages = json.loads(json_text).get("messages")
-second_json_message = json_messages[1].get("message")
-
-print(second_json_message)
+print(len(res.history))
+print(res.url)
