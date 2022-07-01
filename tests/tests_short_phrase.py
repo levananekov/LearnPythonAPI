@@ -1,3 +1,5 @@
+import requests
 
-def test_short_phrase():
-    assert 15 > len(str(input("Set a phrase: ")).strip()), "Phrase has more than 15 characters"
+def test_homework_cookie():
+    response = requests.get(url="https://playground.learnqa.ru/api/homework_cookie")
+    assert response.cookies.get('HomeWork'), "Cookie does't matter Homework"
