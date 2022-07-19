@@ -6,7 +6,7 @@ from pydantic import BaseSettings, validator
 
 
 class UrlSettings(BaseSettings):
-    stage: str
+    stage: str = "prod"
 
     class Config:
         env_prefix = "TEST_"
