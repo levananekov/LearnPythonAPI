@@ -1,5 +1,6 @@
 from datetime import datetime
 from lib.assertions import Assertions
+from random import uniform
 
 from lib import BaseCase
 from lib.my_requests import HttpMethod, MyRequests
@@ -30,8 +31,10 @@ class TestsUserGet(BaseCase):
         token = self.get_header(response, "x-csrf-token")
         user_id = self.get_json_value(response, "user_id")
 
-        response_2 = MyRequests.make_request(HttpMethod.GET, f"user/{user_id}",
-                                  headers={"x-csrf-token": token},
-                                  cookies={"auth_sid": auth_sid}
-                                  )
-        Assertions.assert_json_has_keys(response_2, ["username", "email", "firstName", "lastName"])
+        response_2 = MyRequests.make_request(HttpMethod.GET, f"user/{user_id - 1}",
+                                             headers={"x-csrf-token": token},
+                                             cookies={"auth_sid": auth_sid}
+                                             )
+
+        Assertions.assert_json_has_keys(response_2, ["username"])
+        Assertions.assert_json_has_no_keys(response_2, ["email", "firstName", "lastName"])
