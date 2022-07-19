@@ -1,6 +1,5 @@
 from datetime import datetime
 from lib.assertions import Assertions
-from random import uniform
 
 from lib import BaseCase
 from lib.my_requests import HttpMethod, MyRequests

@@ -15,6 +15,15 @@ class Assertions:
         assert response_as_dict[name] == expected_value, error_massage
 
     @staticmethod
+    def assert_json_value_by_name_not_equal(response: Response, name, expected_value: Union[str, int], error_massage: str):
+        try:
+            response_as_dict = response.json()
+        except json.JSONDecodeError:
+            assert False, "Response in not in JSON format."
+        assert name in response_as_dict, f"Response JSON doesnt have key {name}"
+        assert response_as_dict[name] != expected_value, error_massage
+
+    @staticmethod
     def assert_json_has_key(response: Response, name):
         try:
             response_as_dict = response.json()
