@@ -3,6 +3,7 @@ __pycache__/
 venv/
 .pytest_cache/
 .idea/
+*.log
 
 # Allure results
 allure-results/
