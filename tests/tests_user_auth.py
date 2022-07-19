@@ -1,8 +1,10 @@
 import pytest
-import requests
 from lib import BaseCase
+from lib.assertions import Assertions
+from lib.my_requests import MyRequests, HttpMethod
+import allure
 
-
+@allure.epic("Authorization cases")
 class TestsUserAuth(BaseCase):
     params = ["no_cookies", "no_headers"]
 
@@ -11,20 +13,22 @@ class TestsUserAuth(BaseCase):
             "email": "vinkotov@example.com",
             "password": "1234"
         }
-        response = requests.post(url="https://playground.learnqa.ru/api/user/login", data=data)
-
+        # response = requests.post(url="https://playground.learnqa.ru/api/user/login", data=data)
+        response = MyRequests.make_request(HttpMethod.POST, "user/login", data=data)
         self.auth_sid = self.get_cookie(response, "auth_sid")
         self.token = self.get_header(response, "x-csrf-token")
         self.user_id = self.get_json_value(response, "user_id")
 
+    @allure.description("Авторизация с логином и паролем")
     def test_user_auth(self):
 
-        response_2 = requests.get(url="https://playground.learnqa.ru/api/user/auth",
+        response_2 = MyRequests.make_request(HttpMethod.GET, "user/auth",
                                   headers={"x-csrf-token": self.token},
                                   cookies={"auth_sid": self.auth_sid}
                                   )
-        assert self.user_id == response_2.json().get("user_id")
+        Assertions.assert_json_value_by_name(response_2, "user_id", self.user_id, "Нет id")
 
+    @allure.description("Прроверяем статус авторизации без куки или хедера")
     @pytest.mark.parametrize("condition", params)
     def test_negative_auth_check(self, condition):
 
@@ -37,5 +41,6 @@ class TestsUserAuth(BaseCase):
         else:
             raise RuntimeError("Кривые руки")
 
-        assert 0 == requests.get(url="https://playground.learnqa.ru/api/user/auth", headers=headers, cookies=cookies
-                                 ).json().get("user_id"), "user_id не равен 0"
+        res = MyRequests.make_request(HttpMethod.GET, "user/auth", headers=headers, cookies=cookies)
+
+        Assertions.assert_json_value_by_name(res, "user_id", 0, "user_id не равен 0" )
