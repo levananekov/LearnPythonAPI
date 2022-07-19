@@ -5,6 +5,8 @@ from lib.my_requests import MyRequests, HttpMethod
 import allure
 
 @allure.epic("Authorization cases")
+@allure.feature("Проверка авторизации")
+@pytest.mark.authorization
 class TestsUserAuth(BaseCase):
     params = ["no_cookies", "no_headers"]
 
@@ -19,7 +21,9 @@ class TestsUserAuth(BaseCase):
         self.token = self.get_header(response, "x-csrf-token")
         self.user_id = self.get_json_value(response, "user_id")
 
+    @allure.title("Авторизация в ЛК по логину.")
     @allure.description("Авторизация с логином и паролем")
+    @allure.id("1")
     def test_user_auth(self):
 
         response_2 = MyRequests.make_request(HttpMethod.GET, "user/auth",
@@ -30,6 +34,7 @@ class TestsUserAuth(BaseCase):
 
     @allure.description("Прроверяем статус авторизации без куки или хедера")
     @pytest.mark.parametrize("condition", params)
+    @allure.id("2")
     def test_negative_auth_check(self, condition):
 
         if condition is "no_cookies":
